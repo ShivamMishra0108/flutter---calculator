@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'history.dart';
 
 void main() {
   runApp(CalculatorApp());
@@ -24,6 +26,30 @@ class CalculatorPage extends StatefulWidget {
 class _CalculatorPageState extends State<CalculatorPage> {
   String _input = '';
   String _result = '';
+  List<String> _history = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _loadHistory();
+  }
+
+  Future<void> _loadHistory() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _history = prefs.getStringList('calc_history') ?? [];
+    });
+  }
+
+  Future<void> _saveHistory() async {
+    final prefs = await SharedPreferences.getInstance();
+    prefs.setStringList('calc_history', _history);
+  }
+
+  void _addToHistory(String entry) {
+    _history.add(entry);
+    _saveHistory();
+  }
 
   void _onButtonPressed(String value) {
     setState(() {
@@ -41,9 +67,9 @@ class _CalculatorPageState extends State<CalculatorPage> {
   void _calculateResult() {
     try {
       String finalInput = _input.replaceAll('×', '*').replaceAll('÷', '/');
-
       final result = _evaluateExpression(finalInput);
       _result = result.toString();
+      _addToHistory("$_input = $_result");
     } catch (e) {
       _result = 'Error';
     }
@@ -91,18 +117,20 @@ class _CalculatorPageState extends State<CalculatorPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-  title: Text('Simple Calculator'),
-  centerTitle: true,
-  actions: [
-    IconButton(
-      icon: Icon(Icons.history),
-      onPressed: () {
-        // _showHistory();
-      },
-    ),
-  ],
-),
-
+        title: Text('Simple Calculator'),
+        centerTitle: true,
+        actions: [
+          IconButton(
+            icon: Icon(Icons.history),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => HistoryPage()),
+              );
+            },
+          ),
+        ],
+      ),
       body: Column(
         children: [
           Expanded(
@@ -113,15 +141,9 @@ class _CalculatorPageState extends State<CalculatorPage> {
                 mainAxisAlignment: MainAxisAlignment.end,
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
-                  Text(
-                    _input,
-                    style: TextStyle(fontSize: 32, color: Colors.white70),
-                  ),
+                  Text(_input, style: TextStyle(fontSize: 32, color: Colors.white70)),
                   SizedBox(height: 10),
-                  Text(
-                    _result,
-                    style: TextStyle(fontSize: 48, fontWeight: FontWeight.bold),
-                  ),
+                  Text(_result, style: TextStyle(fontSize: 48, fontWeight: FontWeight.bold)),
                 ],
               ),
             ),
