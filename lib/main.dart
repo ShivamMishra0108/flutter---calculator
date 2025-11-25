@@ -73,13 +73,16 @@ class _CalculatorPageState extends State<CalculatorPage> {
 
   Widget _buildButton(String text, {Color? color}) {
     return Expanded(
-      child: ElevatedButton(
-        onPressed: () => _onButtonPressed(text),
-        style: ElevatedButton.styleFrom(
-          padding: EdgeInsets.all(24),
-          backgroundColor: color ?? Colors.grey[800],
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: ElevatedButton(
+          onPressed: () => _onButtonPressed(text),
+          style: ElevatedButton.styleFrom(
+            padding: EdgeInsets.all(24),
+            backgroundColor: color ?? Colors.grey[800],
+          ),
+          child: Text(text, style: TextStyle(fontSize: 24)),
         ),
-        child: Text(text, style: TextStyle(fontSize: 24)),
       ),
     );
   }
@@ -87,7 +90,19 @@ class _CalculatorPageState extends State<CalculatorPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Simple Calculator'), centerTitle: true),
+      appBar: AppBar(
+  title: Text('Simple Calculator'),
+  centerTitle: true,
+  actions: [
+    IconButton(
+      icon: Icon(Icons.history),
+      onPressed: () {
+        // _showHistory();
+      },
+    ),
+  ],
+),
+
       body: Column(
         children: [
           Expanded(
